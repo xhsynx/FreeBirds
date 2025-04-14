@@ -1,0 +1,6 @@
+@FreeBirds_HostAddress = http://localhost:5093
+
+GET {{FreeBirds_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
