@@ -125,3 +125,12 @@
 /Users/hsyn/Desktop/Projects/FreeBirds/obj/Debug/net8.0/FreeBirds.pdb
 /Users/hsyn/Desktop/Projects/FreeBirds/obj/Debug/net8.0/FreeBirds.genruntimeconfig.cache
 /Users/hsyn/Desktop/Projects/FreeBirds/obj/Debug/net8.0/ref/FreeBirds.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/Microsoft.IdentityModel.Logging.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/BCrypt.Net-Next.dll

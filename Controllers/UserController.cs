@@ -23,7 +23,7 @@ namespace FreeBirds.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        public async Task<IActionResult> GetUserById(Guid id)
         {
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
@@ -31,7 +31,7 @@ namespace FreeBirds.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser(UserCreateDTO userDto)
+        public async Task<IActionResult> CreateUser(LoginDto userDto)
         {
             var user = await _userService.CreateUserAsync(userDto);
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);

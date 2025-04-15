@@ -2,6 +2,7 @@ using FreeBirds.Data;
 using FreeBirds.DTOs;
 using FreeBirds.Models;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net;
 
 namespace FreeBirds.Services
 {
@@ -14,48 +15,47 @@ namespace FreeBirds.Services
             _context = context;
         }
 
-        public async Task<List<UserReadDTO>> GetAllUsersAsync()
+        public async Task<List<User>> GetAllUsersAsync()
         {
-            return await _context.Users
-                .Select(user => new UserReadDTO
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Email = user.Email
-                })
-                .ToListAsync();
+            return await _context.Users.ToListAsync();
         }
 
-        public async Task<UserReadDTO?> GetUserByIdAsync(int id)
+        public async Task<User?> GetUserByIdAsync(Guid id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) return null;
-
-            return new UserReadDTO
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email
-            };
+            return await _context.Users.FindAsync(id);
         }
 
-        public async Task<UserReadDTO> CreateUserAsync(UserCreateDTO userDto)
+        public async Task<User> CreateUserAsync(LoginDto userDto)
         {
+            // Hash the password before storing
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+
             var user = new User
             {
-                Name = userDto.Name,
-                Email = userDto.Email
+                Id = Guid.NewGuid(),
+                Username = userDto.Username,
+                Password = hashedPassword // Store the hashed password
             };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return new UserReadDTO
+            return user;
+        }
+
+        public async Task<User?> AuthenticateUser(string username, string password)
+        {
+            // Find user by username
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username == username);
+
+            // If user not found or password doesn't match
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email
-            };
+                return null;
+            }
+
+            return user;
         }
     }
 }

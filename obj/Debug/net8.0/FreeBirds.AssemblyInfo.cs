@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FreeBirds")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bd67f9e10c82a4f2ded5059dc72c2567ad9e48ba")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+850b2a858173a1de246efd1b673ebb10658f2128")]
 [assembly: System.Reflection.AssemblyProductAttribute("FreeBirds")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FreeBirds")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
