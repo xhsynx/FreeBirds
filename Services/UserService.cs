@@ -64,7 +64,7 @@ namespace FreeBirds.Services
         public async Task<User?> AuthenticateUser(string username, string password)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-            if (user == null || !user.IsActive)
+            if (user is null || !user.IsActive)
             {
                 return null;
             }
@@ -98,7 +98,7 @@ namespace FreeBirds.Services
         public async Task UpdateRefreshToken(Guid userId, string refreshToken, DateTime expiryTime)
         {
             var user = await GetUserByIdAsync(userId);
-            if (user == null)
+            if (user is null)
             {
                 throw new InvalidOperationException("User not found");
             }
@@ -111,7 +111,7 @@ namespace FreeBirds.Services
         public async Task RevokeRefreshToken(Guid userId)
         {
             var user = await GetUserByIdAsync(userId);
-            if (user == null)
+            if (user is null)
             {
                 throw new InvalidOperationException("User not found");
             }
@@ -131,7 +131,7 @@ namespace FreeBirds.Services
         public async Task<string> GeneratePasswordResetToken(string email)
         {
             var user = await GetUserByEmailAsync(email);
-            if (user == null)
+            if (user is null)
             {
                 throw new InvalidOperationException("User not found");
             }
@@ -150,7 +150,7 @@ namespace FreeBirds.Services
                 u.PasswordResetToken == token && 
                 u.PasswordResetTokenExpiryTime > DateTime.UtcNow);
 
-            if (user == null)
+            if (user is null)
             {
                 throw new InvalidOperationException("Invalid or expired token");
             }
@@ -165,7 +165,7 @@ namespace FreeBirds.Services
         public async Task UpdatePassword(Guid userId, string currentPassword, string newPassword)
         {
             var user = await GetUserByIdAsync(userId);
-            if (user == null)
+            if (user is null)
             {
                 throw new InvalidOperationException("User not found");
             }

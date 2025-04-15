@@ -64,7 +64,7 @@ namespace FreeBirds.Controllers
             try
             {
                 var user = await _userService.AuthenticateUser(loginDto.Username, loginDto.Password);
-                if (user == null)
+                if (user is null)
                 {
                     return Unauthorized(new { message = "Invalid username or password" });
                 }
@@ -95,7 +95,7 @@ namespace FreeBirds.Controllers
             try
             {
                 var user = await _userService.GetUserByRefreshToken(refreshTokenDto.RefreshToken);
-                if (user == null)
+                if (user is null)
                 {
                     return Unauthorized(new { message = "Invalid refresh token" });
                 }
@@ -124,7 +124,7 @@ namespace FreeBirds.Controllers
         public async Task<IActionResult> RevokeToken([FromBody] RefreshTokenDto refreshTokenDto)
         {
             var user = await _userService.GetUserByRefreshToken(refreshTokenDto.RefreshToken);
-            if (user == null)
+            if (user is null)
             {
                 return BadRequest(new { message = "Invalid refresh token" });
             }
@@ -148,7 +148,7 @@ namespace FreeBirds.Controllers
             {
                 var token = await _userService.GeneratePasswordResetToken(forgotPasswordDto.Email);
                 var user = await _userService.GetUserByEmailAsync(forgotPasswordDto.Email);
-                if (user != null)
+                if (user is not null)
                 {
                     var emailBody = _emailService.GeneratePasswordResetEmailBody(user.Username, token);
                     await _emailService.SendEmailAsync(user.Email, "Password Reset", emailBody);
