@@ -31,9 +31,16 @@ namespace FreeBirds.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser(LoginDto userDto)
+        public async Task<IActionResult> CreateUser(RegisterDto registerDto)
         {
-            var user = await _userService.CreateUserAsync(userDto);
+            var user = await _userService.CreateUserAsync(
+                registerDto.Username,
+                registerDto.Password,
+                registerDto.Email,
+                registerDto.FirstName,
+                registerDto.LastName,
+                registerDto.PhoneNumber
+            );
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
     }

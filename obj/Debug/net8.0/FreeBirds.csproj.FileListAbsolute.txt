@@ -134,3 +134,8 @@
 /Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
 /Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
 /Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/BCrypt.Net-Next.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/BouncyCastle.Cryptography.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/MailKit.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/MimeKit.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/System.Security.Cryptography.Pkcs.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/runtimes/win/lib/net8.0/System.Security.Cryptography.Pkcs.dll

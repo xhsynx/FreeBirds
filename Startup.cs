@@ -4,6 +4,7 @@ using FreeBirds.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using FreeBirds.Models;
 
 namespace FreeBirds
 {
@@ -30,10 +31,14 @@ namespace FreeBirds
             // Register services
             services.AddScoped<UserService>();
             services.AddScoped<JwtService>();
+            services.AddScoped<EmailService>();
+
+            // Configure email settings
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
 
             // Configure JWT Authentication
-            var jwtSettings = Configuration.GetSection("Jwt");
-            var key = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
+            var jwtSettings = Configuration.GetSection("JwtSettings");
+            var key = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured."));
 
             services.AddAuthentication(options =>
             {
@@ -79,6 +84,13 @@ namespace FreeBirds
             {
                 endpoints.MapControllers();
             });
+
+            // Veritabanını oluştur ve migrate et
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                context.Database.EnsureCreated();
+            }
         }
     }
 }
