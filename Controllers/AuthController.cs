@@ -126,18 +126,18 @@ namespace FreeBirds.Controllers
             var user = await _userService.GetUserByRefreshToken(refreshTokenDto.RefreshToken);
             if (user == null)
             {
-                return BadRequest(new { message = "Geçersiz refresh token" });
+                return BadRequest(new { message = "Invalid refresh token" });
             }
 
             await _userService.RevokeRefreshToken(user.Id);
-            return Ok(new { message = "Token başarıyla iptal edildi" });
+            return Ok(new { message = "Token successfully revoked" });
         }
 
         [HttpGet("validate")]
         [Authorize]
         public IActionResult Validate()
         {
-            return Ok(new { message = "Token geçerli" });
+            return Ok(new { message = "Token is valid" });
         }
 
         [HttpPost("forgot-password")]
@@ -151,7 +151,7 @@ namespace FreeBirds.Controllers
                 if (user != null)
                 {
                     var emailBody = _emailService.GeneratePasswordResetEmailBody(user.Username, token);
-                    await _emailService.SendEmailAsync(user.Email, "Şifre Sıfırlama", emailBody);
+                    await _emailService.SendEmailAsync(user.Email, "Password Reset", emailBody);
                 }
                 return Ok(new { message = "Password reset email sent" });
             }

@@ -38,6 +38,7 @@ namespace FreeBirds.Services
 
         public async Task<User> CreateUserAsync(string username, string email, string password, string? firstName = null, string? lastName = null, string? phoneNumber = null)
         {
+            // Check if username is already taken
             if (await _context.Users.AnyAsync(u => u.Username == username))
             {
                 throw new InvalidOperationException("Username already exists");
@@ -68,13 +69,16 @@ namespace FreeBirds.Services
                 return null;
             }
 
+            // Check if account is locked
             if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.UtcNow)
             {
                 throw new InvalidOperationException("Account is locked. Please try again later.");
             }
 
+            // Verify password
             if (!BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
+                // Increment failed login attempts
                 user.FailedLoginAttempts++;
                 if (user.FailedLoginAttempts >= MAX_FAILED_ATTEMPTS)
                 {
@@ -84,6 +88,7 @@ namespace FreeBirds.Services
                 return null;
             }
 
+            // Successful login
             user.FailedLoginAttempts = 0;
             user.LastLoginAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
@@ -131,6 +136,7 @@ namespace FreeBirds.Services
                 throw new InvalidOperationException("User not found");
             }
 
+            // Generate random token
             var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
             user.PasswordResetToken = token;
             user.PasswordResetTokenExpiryTime = DateTime.UtcNow.AddHours(PASSWORD_RESET_TOKEN_EXPIRY_HOURS);
@@ -149,6 +155,7 @@ namespace FreeBirds.Services
                 throw new InvalidOperationException("Invalid or expired token");
             }
 
+            // Hash and save new password
             user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
             user.PasswordResetToken = null;
             user.PasswordResetTokenExpiryTime = null;
@@ -163,11 +170,13 @@ namespace FreeBirds.Services
                 throw new InvalidOperationException("User not found");
             }
 
+            // Verify current password
             if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.Password))
             {
                 throw new InvalidOperationException("Current password is incorrect");
             }
 
+            // Hash and save new password
             user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
             await _context.SaveChangesAsync();
         }

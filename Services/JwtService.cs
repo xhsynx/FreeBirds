@@ -29,6 +29,7 @@ namespace FreeBirds.Services
 
         public string GenerateAccessToken(User user)
         {
+            // Create claims for the token
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -36,9 +37,11 @@ namespace FreeBirds.Services
                 new Claim(ClaimTypes.Email, user.Email)
             };
 
+            // Create signing credentials
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            // Create the token
             var token = new JwtSecurityToken(
                 issuer: _issuer,
                 audience: _audience,
@@ -52,6 +55,7 @@ namespace FreeBirds.Services
 
         public string GenerateRefreshToken()
         {
+            // Generate a random refresh token
             var randomNumber = new byte[32];
             using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
@@ -70,6 +74,7 @@ namespace FreeBirds.Services
 
             try
             {
+                // Configure token validation parameters
                 var tokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -82,6 +87,7 @@ namespace FreeBirds.Services
                     ClockSkew = TimeSpan.Zero
                 };
 
+                // Validate the token
                 var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
                 return principal;
             }

@@ -18,16 +18,19 @@ namespace FreeBirds.Services
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
+            // Create email message
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(_emailSettings.FromName, _emailSettings.FromEmail));
             message.To.Add(new MailboxAddress("", toEmail));
             message.Subject = subject;
 
+            // Set email body
             message.Body = new TextPart(TextFormat.Html)
             {
                 Text = body
             };
 
+            // Send email using SMTP
             using var client = new SmtpClient();
             await client.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.SmtpPort, SecureSocketOptions.StartTls);
             await client.AuthenticateAsync(_emailSettings.SmtpUsername, _emailSettings.SmtpPassword);
@@ -37,17 +40,18 @@ namespace FreeBirds.Services
 
         public string GeneratePasswordResetEmailBody(string username, string resetToken)
         {
+            // Generate HTML email body for password reset
             return $@"
                 <html>
                 <body>
-                    <h2>Merhaba {username},</h2>
-                    <p>Şifrenizi sıfırlamak için aşağıdaki bağlantıya tıklayın:</p>
-                    <p><a href='http://localhost:5001/reset-password?token={resetToken}'>Şifremi Sıfırla</a></p>
-                    <p>Bu bağlantı 24 saat boyunca geçerlidir.</p>
-                    <p>Eğer bu isteği siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.</p>
+                    <h2>Hello {username},</h2>
+                    <p>Please click the link below to reset your password:</p>
+                    <p><a href='http://localhost:5001/reset-password?token={resetToken}'>Reset Password</a></p>
+                    <p>This link will expire in 24 hours.</p>
+                    <p>If you did not request this password reset, please ignore this email.</p>
                     <br>
-                    <p>Saygılarımızla,</p>
-                    <p>FreeBirds Ekibi</p>
+                    <p>Best regards,</p>
+                    <p>FreeBirds Team</p>
                 </body>
                 </html>";
         }
