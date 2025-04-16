@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FreeBirds.DTOs
 {
     public class RefreshTokenDto
     {
-        public required string RefreshToken { get; set; }
+        [Required]
+        public string Token { get; set; } = string.Empty;
     }
 } 

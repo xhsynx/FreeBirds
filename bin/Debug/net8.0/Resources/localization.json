@@ -1,0 +1,40 @@
+{
+  "DefaultCulture": "tr-TR",
+  "SupportedCultures": ["tr-TR", "en-US"],
+  "Messages": {
+    "tr-TR": {
+      "RequiredField": "{0} alanı zorunludur",
+      "StringLength": "{0} en fazla {1} karakter olabilir",
+      "EmailAddress": "Geçerli bir e-posta adresi giriniz",
+      "Range": "{0} {1} ile {2} arasında olmalıdır",
+      "FirstName": "İsim",
+      "LastName": "Soyisim",
+      "StudentType": "Öğrenci Tipi",
+      "MotherName": "Anne Adı",
+      "FatherName": "Baba Adı",
+      "RegistrationDate": "Kayıt Tarihi",
+      "RegistrationFee": "Kayıt Ücreti",
+      "RegistrationEndDate": "Kayıt Bitiş Tarihi",
+      "PhoneNumber": "Telefon Numarası",
+      "Email": "E-posta",
+      "Address": "Adres"
+    },
+    "en-US": {
+      "RequiredField": "The {0} field is required",
+      "StringLength": "The {0} field cannot be longer than {1} characters",
+      "EmailAddress": "Please enter a valid email address",
+      "Range": "The {0} field must be between {1} and {2}",
+      "FirstName": "First Name",
+      "LastName": "Last Name",
+      "StudentType": "Student Type",
+      "MotherName": "Mother's Name",
+      "FatherName": "Father's Name",
+      "RegistrationDate": "Registration Date",
+      "RegistrationFee": "Registration Fee",
+      "RegistrationEndDate": "Registration End Date",
+      "PhoneNumber": "Phone Number",
+      "Email": "Email",
+      "Address": "Address"
+    }
+  }
+} 

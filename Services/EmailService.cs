@@ -4,6 +4,7 @@ using MimeKit;
 using MimeKit.Text;
 using FreeBirds.Models;
 using Microsoft.Extensions.Options;
+using System.Threading.Tasks;
 
 namespace FreeBirds.Services
 {
@@ -54,6 +55,13 @@ namespace FreeBirds.Services
                     <p>FreeBirds Team</p>
                 </body>
                 </html>";
+        }
+
+        public async Task SendPasswordResetEmailAsync(string email, string resetToken)
+        {
+            // In a real application, you would implement email sending logic here
+            // For example, using SendGrid, MailKit, or another email service
+            await Task.CompletedTask;
         }
     }
 } 
