@@ -1,5 +1,7 @@
 using FreeBirds.Data;
 using FreeBirds.Models;
+using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace FreeBirds.Services
@@ -7,37 +9,39 @@ namespace FreeBirds.Services
     public class DatabaseSeeder
     {
         private readonly AppDbContext _context;
-        private readonly IConfiguration _configuration;
+        private readonly UserService _userService;
 
-        public DatabaseSeeder(AppDbContext context, IConfiguration configuration)
+        public DatabaseSeeder(AppDbContext context, UserService userService)
         {
             _context = context;
-            _configuration = configuration;
+            _userService = userService;
         }
 
         public async Task SeedAdminUserAsync()
         {
-            // Check if any admin user exists
-            var adminExists = await _context.Users.AnyAsync(u => u.Role == UserRole.Admin);
-            
-            if (!adminExists)
-            {
-                var adminUser = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Username = "admin",
-                    Email = "admin@freebirds.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"), // Default password, should be changed on first login
-                    FirstName = "System",
-                    LastName = "Administrator",
-                    Role = UserRole.Admin,
-                    CreatedAt = DateTime.UtcNow,
-                    IsActive = true
-                };
+            // Check if admin user already exists
+            var adminExists = await _userService.GetUserByUsernameAsync("admin");
+            if (adminExists != null) return;
 
-                await _context.Users.AddAsync(adminUser);
-                await _context.SaveChangesAsync();
+            // Get admin role
+            var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
+            if (adminRole == null)
+            {
+                throw new InvalidOperationException("Admin role not found in database");
             }
+
+            // Create admin user
+            var adminUser = await _userService.CreateUserAsync(
+                username: "admin",
+                password: "Admin123!", // You should change this in production
+                email: "admin@freebirds.com",
+                firstName: "Admin",
+                lastName: "User",
+                phoneNumber: "1234567890",
+                roleId: adminRole.Id
+            );
+
+            await _context.SaveChangesAsync();
         }
     }
 } 

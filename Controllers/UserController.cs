@@ -1,11 +1,13 @@
 using FreeBirds.DTOs;
 using FreeBirds.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FreeBirds.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AdminOnly")]
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
@@ -30,6 +32,7 @@ namespace FreeBirds.Controllers
             return Ok(user);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CreateUser(RegisterDto registerDto)
         {

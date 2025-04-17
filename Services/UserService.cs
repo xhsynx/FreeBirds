@@ -36,12 +36,26 @@ namespace FreeBirds.Services
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<User> CreateUserAsync(string username, string email, string password, string? firstName = null, string? lastName = null, string? phoneNumber = null)
+        public async Task<User?> GetUserByUsernameAsync(string username)
+        {
+            return await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Username == username);
+        }
+
+        public async Task<User> CreateUserAsync(string username, string email, string password, string? firstName = null, string? lastName = null, string? phoneNumber = null, int roleId = 2) // Default role is User (Id: 2)
         {
             // Check if username is already taken
             if (await _context.Users.AnyAsync(u => u.Username == username))
             {
                 throw new InvalidOperationException("Username already exists");
+            }
+
+            // Check if role exists
+            var role = await _context.Roles.FindAsync(roleId);
+            if (role == null)
+            {
+                throw new InvalidOperationException("Role not found");
             }
 
             var user = new User
@@ -52,6 +66,7 @@ namespace FreeBirds.Services
                 FirstName = firstName,
                 LastName = lastName,
                 PhoneNumber = phoneNumber,
+                RoleId = roleId,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true
             };
@@ -63,7 +78,10 @@ namespace FreeBirds.Services
 
         public async Task<User?> AuthenticateUser(string username, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Username == username);
+            
             if (user is null || !user.IsActive)
             {
                 return null;

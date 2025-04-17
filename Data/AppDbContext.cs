@@ -10,15 +10,25 @@ namespace FreeBirds.Data
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Log> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure User entity
+            // Configure User-Role relationship
             modelBuilder.Entity<User>()
-                .Property(u => u.Role)
-                .HasDefaultValue(UserRole.RegularUser);
+                .HasOne(u => u.Role)
+                .WithMany()
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Seed roles
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = 1, Name = "Admin", Description = "System Administrator" },
+                new Role { Id = 2, Name = "User", Description = "Regular User" }
+            );
         }
     }
 }

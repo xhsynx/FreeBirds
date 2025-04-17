@@ -29,7 +29,9 @@ namespace FreeBirds.Models
         public string? PhoneNumber { get; set; }
 
         [Required]
-        public UserRole? Role { get; set; } = UserRole.RegularUser;
+        public int RoleId { get; set; }
+
+        public Role? Role { get; set; }
 
         public bool IsActive { get; set; } = true;
 
