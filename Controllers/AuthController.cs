@@ -12,26 +12,44 @@ namespace FreeBirds.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly AuthService _authService;
         private readonly UserService _userService;
         private readonly JwtService _jwtService;
         private readonly EmailService _emailService;
 
-        public AuthController(AuthService authService, UserService userService, JwtService jwtService, EmailService emailService)
+        public AuthController(UserService userService, JwtService jwtService, EmailService emailService)
         {
-            _authService = authService;
             _userService = userService;
             _jwtService = jwtService;
             _emailService = emailService;
         }
 
-        [HttpPost("login")]
-        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginDto loginDto)
+        [HttpPost("register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
             try
             {
-                var response = await _authService.LoginAsync(loginDto);
-                return Ok(response);
+                var user = await _userService.CreateUserAsync(
+                    registerDto.Username,
+                    registerDto.Email,
+                    registerDto.Password,
+                    registerDto.FirstName,
+                    registerDto.LastName,
+                    registerDto.PhoneNumber
+                );
+
+                var accessToken = _jwtService.GenerateAccessToken(user);
+                var refreshToken = _jwtService.GenerateRefreshToken();
+                var refreshTokenExpiryTime = _jwtService.GetRefreshTokenExpiryTime();
+
+                await _userService.UpdateRefreshToken(user.Id, refreshToken, refreshTokenExpiryTime);
+
+                return Ok(new
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                    ExpiresIn = 3600
+                });
             }
             catch (InvalidOperationException ex)
             {
@@ -39,13 +57,30 @@ namespace FreeBirds.Controllers
             }
         }
 
-        [HttpPost("register")]
-        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterDto registerDto)
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             try
             {
-                var response = await _authService.RegisterAsync(registerDto);
-                return Ok(response);
+                var user = await _userService.AuthenticateUser(loginDto.Username, loginDto.Password);
+                if (user is null)
+                {
+                    return Unauthorized(new { message = "Invalid username or password" });
+                }
+
+                var accessToken = _jwtService.GenerateAccessToken(user);
+                var refreshToken = _jwtService.GenerateRefreshToken();
+                var refreshTokenExpiryTime = _jwtService.GetRefreshTokenExpiryTime();
+
+                await _userService.UpdateRefreshToken(user.Id, refreshToken, refreshTokenExpiryTime);
+
+                return Ok(new
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                    ExpiresIn = 3600
+                });
             }
             catch (InvalidOperationException ex)
             {
@@ -54,43 +89,33 @@ namespace FreeBirds.Controllers
         }
 
         [HttpPost("refresh-token")]
-        [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
         {
             try
             {
-                var response = await _authService.RefreshToken(refreshTokenDto.Token);
-                return Ok(response);
+                var user = await _userService.GetUserByRefreshToken(refreshTokenDto.RefreshToken);
+                if (user is null)
+                {
+                    return Unauthorized(new { message = "Invalid refresh token" });
+                }
+
+                var accessToken = _jwtService.GenerateAccessToken(user);
+                var newRefreshToken = _jwtService.GenerateRefreshToken();
+                var refreshTokenExpiryTime = _jwtService.GetRefreshTokenExpiryTime();
+
+                await _userService.UpdateRefreshToken(user.Id, newRefreshToken, refreshTokenExpiryTime);
+
+                return Ok(new
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = newRefreshToken,
+                    ExpiresIn = 3600
+                });
             }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while refreshing token", error = ex.Message });
-            }
-        }
-
-        [HttpPost("logout")]
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            try
-            {
-                var userIdClaim = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
-                if (string.IsNullOrEmpty(userIdClaim))
-                {
-                    return BadRequest(new { message = "Invalid user ID" });
-                }
-                
-                var userId = Guid.Parse(userIdClaim);
-                await _authService.RevokeAllTokensAsync(userId);
-                return Ok(new { message = "Logged out successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred during logout", error = ex.Message });
             }
         }
 
@@ -98,19 +123,14 @@ namespace FreeBirds.Controllers
         [Authorize]
         public async Task<IActionResult> RevokeToken([FromBody] RefreshTokenDto refreshTokenDto)
         {
-            try
+            var user = await _userService.GetUserByRefreshToken(refreshTokenDto.RefreshToken);
+            if (user is null)
             {
-                await _authService.RevokeTokenAsync(refreshTokenDto.Token);
-                return Ok(new { message = "Token revoked successfully" });
+                return BadRequest(new { message = "Invalid refresh token" });
             }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while revoking token", error = ex.Message });
-            }
+
+            await _userService.RevokeRefreshToken(user.Id);
+            return Ok(new { message = "Token successfully revoked" });
         }
 
         [HttpGet("validate")]
@@ -121,13 +141,19 @@ namespace FreeBirds.Controllers
         }
 
         [HttpPost("forgot-password")]
-        public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
         {
             try
             {
-                var token = await _authService.GeneratePasswordResetTokenAsync(forgotPasswordDto.Email);
-                // Here you would typically send the token via email
-                return Ok(new { message = "Password reset instructions have been sent to your email." });
+                var token = await _userService.GeneratePasswordResetToken(forgotPasswordDto.Email);
+                var user = await _userService.GetUserByEmailAsync(forgotPasswordDto.Email);
+                if (user is not null)
+                {
+                    var emailBody = _emailService.GeneratePasswordResetEmailBody(user.Username, token);
+                    await _emailService.SendEmailAsync(user.Email, "Password Reset", emailBody);
+                }
+                return Ok(new { message = "Password reset email sent" });
             }
             catch (InvalidOperationException ex)
             {
@@ -136,20 +162,13 @@ namespace FreeBirds.Controllers
         }
 
         [HttpPost("reset-password")]
-        public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
         {
             try
             {
-                var result = await _authService.ResetPasswordAsync(
-                    resetPasswordDto.Email,
-                    resetPasswordDto.Token,
-                    resetPasswordDto.NewPassword);
-
-                if (result)
-                {
-                    return Ok(new { message = "Password has been reset successfully." });
-                }
-                return BadRequest(new { message = "Failed to reset password." });
+                await _userService.ResetPassword(resetPasswordDto.Token, resetPasswordDto.NewPassword);
+                return Ok(new { message = "Password reset successful" });
             }
             catch (InvalidOperationException ex)
             {
@@ -163,23 +182,13 @@ namespace FreeBirds.Controllers
         {
             try
             {
-                var userIdClaim = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
-                if (string.IsNullOrEmpty(userIdClaim))
-                {
-                    return Unauthorized(new { message = "User ID not found in token" });
-                }
-                
-                var userId = Guid.Parse(userIdClaim);
-                await _userService.UpdatePasswordAsync(userId, updatePasswordDto.CurrentPassword, updatePasswordDto.NewPassword);
+                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException("User ID not found"));
+                await _userService.UpdatePassword(userId, updatePasswordDto.CurrentPassword, updatePasswordDto.NewPassword);
                 return Ok(new { message = "Password updated successfully" });
             }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while updating password", error = ex.Message });
             }
         }
     }

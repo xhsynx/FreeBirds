@@ -1,14 +1,11 @@
 using FreeBirds.DTOs;
 using FreeBirds.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using FreeBirds.Models;
 
 namespace FreeBirds.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
@@ -26,7 +23,6 @@ namespace FreeBirds.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<IActionResult> GetUserById(Guid id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -34,61 +30,18 @@ namespace FreeBirds.Controllers
             return Ok(user);
         }
 
-        [HttpPost("register")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+        [HttpPost]
+        public async Task<IActionResult> CreateUser(RegisterDto registerDto)
         {
-            try
-            {
-                var userId = await _userService.CreateUserAsync(registerDto);
-                return Ok(new { message = "User registered successfully", userId });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred during registration", error = ex.Message });
-            }
-        }
-
-        [HttpPut("{id}")]
-        [Authorize]
-        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserDto updateUserDto)
-        {
-            try
-            {
-                await _userService.UpdateUserAsync(id, updateUserDto);
-                return Ok(new { message = "User updated successfully" });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while updating user", error = ex.Message });
-            }
-        }
-
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteUser(Guid id)
-        {
-            try
-            {
-                await _userService.DeleteUserAsync(id);
-                return Ok(new { message = "User deleted successfully" });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while deleting user", error = ex.Message });
-            }
+            var user = await _userService.CreateUserAsync(
+                registerDto.Username,
+                registerDto.Password,
+                registerDto.Email,
+                registerDto.FirstName,
+                registerDto.LastName,
+                registerDto.PhoneNumber
+            );
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
     }
 }
