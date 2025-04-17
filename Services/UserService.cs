@@ -81,7 +81,7 @@ namespace FreeBirds.Services
             var user = await _context.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Username == username);
-            
+
             if (user is null || !user.IsActive)
             {
                 return null;
@@ -141,8 +141,8 @@ namespace FreeBirds.Services
 
         public async Task<User?> GetUserByRefreshToken(string refreshToken)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => 
-                u.RefreshToken == refreshToken && 
+            return await _context.Users.FirstOrDefaultAsync(u =>
+                u.RefreshToken == refreshToken &&
                 u.RefreshTokenExpiryTime > DateTime.UtcNow);
         }
 
@@ -164,8 +164,8 @@ namespace FreeBirds.Services
 
         public async Task ResetPassword(string token, string newPassword)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => 
-                u.PasswordResetToken == token && 
+            var user = await _context.Users.FirstOrDefaultAsync(u =>
+                u.PasswordResetToken == token &&
                 u.PasswordResetTokenExpiryTime > DateTime.UtcNow);
 
             if (user is null)

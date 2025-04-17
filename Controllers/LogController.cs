@@ -17,7 +17,7 @@ namespace FreeBirds.Controllers
             _logService = logService;
         }
 
-        [HttpGet]
+        [HttpGet("list")]
         public async Task<IActionResult> GetAllLogs()
         {
             var logs = await _logService.GetAllLogsAsync();

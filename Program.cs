@@ -166,7 +166,7 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
     
-    context.Database.EnsureCreated();
+    await context.Database.MigrateAsync();
     await seeder.SeedAdminUserAsync();
 }
 

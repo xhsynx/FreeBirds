@@ -14,7 +14,7 @@ namespace FreeBirds.Services
         private readonly IConfiguration _configuration;
 
         public DatabaseSeeder(
-            AppDbContext context, 
+            AppDbContext context,
             UserService userService,
             IConfiguration configuration)
         {
@@ -57,4 +57,4 @@ namespace FreeBirds.Services
             await _context.SaveChangesAsync();
         }
     }
-} 
+}

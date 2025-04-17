@@ -17,14 +17,14 @@ namespace FreeBirds.Controllers
             _userService = userService;
         }
 
-        [HttpGet]
+        [HttpGet("list")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -33,7 +33,7 @@ namespace FreeBirds.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<IActionResult> CreateUser(RegisterDto registerDto)
         {
             var user = await _userService.CreateUserAsync(
@@ -43,6 +43,21 @@ namespace FreeBirds.Controllers
                 registerDto.FirstName,
                 registerDto.LastName,
                 registerDto.PhoneNumber
+            );
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+        }
+
+        [HttpPost("create-admin")]
+        public async Task<IActionResult> CreateAdminUser(RegisterDto registerDto)
+        {
+            var user = await _userService.CreateUserAsync(
+                registerDto.Username,
+                registerDto.Password,
+                registerDto.Email,
+                registerDto.FirstName,
+                registerDto.LastName,
+                registerDto.PhoneNumber,
+                roleId: 1
             );
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
