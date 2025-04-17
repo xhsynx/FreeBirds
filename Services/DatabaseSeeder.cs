@@ -3,6 +3,7 @@ using FreeBirds.Models;
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace FreeBirds.Services
 {
@@ -10,11 +11,16 @@ namespace FreeBirds.Services
     {
         private readonly AppDbContext _context;
         private readonly UserService _userService;
+        private readonly IConfiguration _configuration;
 
-        public DatabaseSeeder(AppDbContext context, UserService userService)
+        public DatabaseSeeder(
+            AppDbContext context, 
+            UserService userService,
+            IConfiguration configuration)
         {
             _context = context;
             _userService = userService;
+            _configuration = configuration;
         }
 
         public async Task SeedAdminUserAsync()
@@ -30,14 +36,21 @@ namespace FreeBirds.Services
                 throw new InvalidOperationException("Admin role not found in database");
             }
 
+            // Get admin user settings from configuration
+            var adminSettings = _configuration.GetSection("AdminUser").Get<AdminUserSettings>();
+            if (adminSettings == null)
+            {
+                throw new InvalidOperationException("Admin user settings not found in configuration");
+            }
+
             // Create admin user
             var adminUser = await _userService.CreateUserAsync(
-                username: "admin",
-                password: "Admin123!", // You should change this in production
-                email: "admin@freebirds.com",
-                firstName: "Admin",
-                lastName: "User",
-                phoneNumber: "1234567890",
+                username: adminSettings.Username,
+                password: adminSettings.Password,
+                email: adminSettings.Email,
+                firstName: adminSettings.FirstName,
+                lastName: adminSettings.LastName,
+                phoneNumber: adminSettings.PhoneNumber,
                 roleId: adminRole.Id
             );
 
