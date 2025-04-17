@@ -15,15 +15,10 @@ namespace FreeBirds.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Seed some test data with hashed password
-            // The password "testpassword" is hashed using BCrypt
-            modelBuilder.Entity<User>().HasData(
-                new User { 
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000001"), 
-                    Username = "testuser", 
-                    Password = BCrypt.Net.BCrypt.HashPassword("testpassword") 
-                }
-            );
+            // Configure User entity
+            modelBuilder.Entity<User>()
+                .Property(u => u.Role)
+                .HasDefaultValue(UserRole.RegularUser);
         }
     }
 }

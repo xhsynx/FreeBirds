@@ -53,6 +53,7 @@ builder.Services.AddScoped<EmailService>();
 // Other services
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<DatabaseSeeder>();
 
 var app = builder.Build();
 
@@ -70,11 +71,14 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Veritabanını oluştur ve migrate et
+// Create and migrate database, then seed admin user
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+    
     context.Database.EnsureCreated();
+    await seeder.SeedAdminUserAsync();
 }
 
 app.Run();
