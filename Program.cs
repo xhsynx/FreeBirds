@@ -14,6 +14,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using AutoMapper;
+using FreeBirds.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,6 +101,13 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<LogService>();
 builder.Services.AddScoped<DatabaseSeeder>();
+
+// Add Services
+builder.Services.AddScoped<IEtutService, EtutService>();
+builder.Services.AddScoped<IExamService, ExamService>();
+
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 var app = builder.Build();
 

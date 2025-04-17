@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "nqqW+Ug9f/Q=",
+  "dgSpecHash": "HCcXD0fwWBc=",
   "success": true,
   "projectFilePath": "/Users/hsyn/Desktop/Projects/FreeBirds/FreeBirds.csproj",
   "expectedPackageFiles": [
+    "/Users/hsyn/.nuget/packages/automapper/12.0.1/automapper.12.0.1.nupkg.sha512",
+    "/Users/hsyn/.nuget/packages/automapper.extensions.microsoft.dependencyinjection/12.0.1/automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
     "/Users/hsyn/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/Users/hsyn/.nuget/packages/bouncycastle.cryptography/2.5.1/bouncycastle.cryptography.2.5.1.nupkg.sha512",
     "/Users/hsyn/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",

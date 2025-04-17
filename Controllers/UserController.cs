@@ -8,14 +8,9 @@ namespace FreeBirds.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Policy = "AdminOnly")]
-    public class UserController : ControllerBase
+    public class UserController(UserService userService) : ControllerBase
     {
-        private readonly UserService _userService;
-
-        public UserController(UserService userService)
-        {
-            _userService = userService;
-        }
+        private readonly UserService _userService = userService;
 
         [HttpGet("list")]
         public async Task<IActionResult> GetAllUsers()

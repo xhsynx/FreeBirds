@@ -139,3 +139,5 @@
 /Users/hsyn/Desktop/Projects/FreeBirds/obj/Debug/net8.0/FreeBirds.pdb
 /Users/hsyn/Desktop/Projects/FreeBirds/obj/Debug/net8.0/FreeBirds.genruntimeconfig.cache
 /Users/hsyn/Desktop/Projects/FreeBirds/obj/Debug/net8.0/ref/FreeBirds.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/AutoMapper.dll
+/Users/hsyn/Desktop/Projects/FreeBirds/bin/Debug/net8.0/AutoMapper.Extensions.Microsoft.DependencyInjection.dll
